@@ -8,7 +8,15 @@
 import UIKit
 import Kingfisher
 
-class StoryTableViewCell: UITableViewCell {
+struct StoryTableViewCellModel: TableViewCellModelType {
+    var identifier: String { String(describing: StoryTableViewCell.self) }
+    
+    let title: String
+    let description: String
+    let imageUrl: String
+}
+
+class StoryTableViewCell: UITableViewCell, TableViewCellType {
     
     @IBOutlet weak var storyImageView: UIImageView!
     @IBOutlet weak var storyTitleLabel: UILabel!
@@ -21,10 +29,12 @@ class StoryTableViewCell: UITableViewCell {
         storyImageView.layer.cornerRadius = storyImageView.frame.height/2
     }
     
-    func configureCellWith(story: Story) {
-        storyImageView.kf.setImage(with: URL(string: story.imageUrl))
-        storyTitleLabel.text = story.title
-        storyDescriptionLabel.text = story.description
+    func update(with model: TableViewCellModelType) {
+        guard let model = model as? StoryTableViewCellModel else { return }
+        
+        storyImageView.kf.setImage(with: URL(string: model.imageUrl))
+        storyTitleLabel.text = model.title
+        storyDescriptionLabel.text = model.description
     }
     
 }

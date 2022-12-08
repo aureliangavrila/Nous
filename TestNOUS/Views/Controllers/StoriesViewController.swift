@@ -62,12 +62,19 @@ class StoriesViewController: UIViewController {
     private func createTableViewBindings() {
         tableView.estimatedRowHeight = 100
         tableView.rowHeight = UITableView.automaticDimension
-        tableView.register(UINib(nibName: "StoryTableViewCell", bundle: nil), forCellReuseIdentifier: "StoryTableViewCell")
-        
-        viewModel.filteredStoriesObservable.bind(to: tableView.rx.items(cellIdentifier: "StoryTableViewCell", cellType: StoryTableViewCell.self)) { index, element, cell in
-            cell.configureCellWith(story: element)
-        }
-        .disposed(by: viewModel.disposeBag)
+        let tableViewDataSource = tableView.buildDataSource(nibCellIdentifiers: [String(describing: StoryTableViewCell.self)])
+
+        viewModel.filteredStoriesObservable
+            .map {
+                let items = $0.map { story -> StoryTableViewCellModel in
+                    StoryTableViewCellModel(title: story.title, description: story.description, imageUrl: story.imageUrl)
+                }
+                
+                return [TableViewSectionModelType.withItems(items)]
+            }
+            .asDriver(onErrorJustReturn: [])
+            .drive(tableView.rx.items(dataSource: tableViewDataSource))
+            .disposed(by: viewModel.disposeBag)
         
         tableView.rx.modelSelected(Story.self)
             .do(onNext: { [weak self] story in
