@@ -18,7 +18,7 @@ protocol StoriesViewModelProtocol {
 class StoriesViewModel: StoriesViewModelProtocol {
     
     var disposeBag = DisposeBag()
-    let storiesRepo: StoriesRepository
+    private let storiesRepo: StoriesRepository
     
     var searchTextRelay = BehaviorRelay(value: "")
     let storiesBehaviourRelay = BehaviorRelay<[Story]>.init(value: [])
